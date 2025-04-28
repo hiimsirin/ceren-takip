@@ -6,7 +6,6 @@
   <title>Ceren'in + / - Takibi</title>
   <link rel="manifest" href="manifest.json">
   <style>
-    /* Genel */
     body {
       font-family: Arial, sans-serif;
       background: #f2f2f2;
@@ -19,115 +18,77 @@
       padding: 20px;
     }
     h1 { margin-bottom: 10px; }
-    .score {
-      font-size: 64px;
-      margin: 30px 0;
+    .score { 
+      font-size: 64px; 
+      margin: 30px 0; 
       transition: color 0.3s ease;
     }
+
+    /* ————— Grid ile Butonlar ————— */
     .buttons {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      justify-content: center;
+      display: grid;
+      grid-template-columns: repeat(6, 1fr); /* 6 sütunlu grid */
+      gap: 8px; /* Butonlar arasındaki boşluk */
+      width: 100%;
+      max-width: 400px; /* iPhone12 genişliğine yakın */
     }
-    button {
-      font-size: 24px;
-      padding: 15px 20px;
+    .buttons button {
+      width: 100%;
+      padding: 12px 0;
+      font-size: 20px;
       border: none;
       border-radius: 10px;
       cursor: pointer;
       color: white;
-      min-width: 70px;
       box-shadow: 2px 2px 8px rgba(0,0,0,0.2);
-      transition: transform 0.1s ease;
+      transition: transform .1s ease, background-color .2s ease;
+      min-width: 0;      /* grid kutusunun küçülmesine izin ver */
+      flex: none;
     }
-    /* Buton basış animasyonu */
-    button:active {
-      transform: scale(0.9);
-    }
-    /* Focus stili */
-    button:focus {
-      outline: none;
-      box-shadow: 0 0 0 3px rgba(0,150,255,0.4);
-    }
-    /* Renkler */
-    .plus1  { background-color: #4CAF50; }
-    .plus5  { background-color: #43A047; }
-    .plus10 { background-color: #388E3C; }
-    .minus1 { background-color: #F44336; }
-    .minus5 { background-color: #E53935; }
-    .minus10{ background-color: #D32F2F; }
-    /* Reset butonu */
-    .reset {
-      background: #607D8B;
-    }
-    /* Skor flash animasyonları */
-    @keyframes flash-green {
-      0% { color: #4CAF50; }
-      100% { color: inherit; }
-    }
-    @keyframes flash-red {
-      0% { color: #F44336; }
-      100% { color: inherit; }
-    }
-    .flash-green { animation: flash-green 0.5s; }
-    .flash-red   { animation: flash-red 0.5s; }
-    /* Dark Mode */
-    @media (prefers-color-scheme: dark) {
-      body { background: #121212; color: #EEE; }
-      button { box-shadow: 2px 2px 8px rgba(0,0,0,0.6); }
+    button:active { transform: scale(0.95); }
+    button:focus { outline: none; box-shadow: 0 0 0 3px rgba(0,150,255,0.4); }
+
+    .plus1  { background: #4CAF50; }
+    .plus5  { background: #43A047; }
+    .plus10 { background: #388E3C; }
+    .minus1 { background: #F44336; }
+    .minus5 { background: #E53935; }
+    .minus10{ background: #D32F2F; }
+
+    /* Responsive iPhone 12 için */
+    @media (max-width: 428px) {
+      .score { font-size: 56px; }
+      .buttons button { font-size: 18px; padding: 10px 0; }
     }
   </style>
 </head>
 <body>
+  <h1>Ceren'in + / - Takibi</h1>
+  <div class="score" id="score">0</div>
 
-<h1>Ceren'in + / - Takibi</h1>
-<div class="score" id="score">0</div>
+  <div class="buttons">
+    <button class="plus1" onclick="changeScore(1)">+1</button>
+    <button class="plus5" onclick="changeScore(5)">+5</button>
+    <button class="plus10" onclick="changeScore(10)">+10</button>
+    <button class="minus1" onclick="changeScore(-1)">-1</button>
+    <button class="minus5" onclick="changeScore(-5)">-5</button>
+    <button class="minus10" onclick="changeScore(-10)">-10</button>
+  </div>
 
-<div class="buttons">
-  <button class="plus1"   onclick="changeScore(1)">+1</button>
-  <button class="plus5"   onclick="changeScore(5)">+5</button>
-  <button class="plus10"  onclick="changeScore(10)">+10</button>
-  <button class="minus1"  onclick="changeScore(-1)">-1</button>
-  <button class="minus5"  onclick="changeScore(-5)">-5</button>
-  <button class="minus10" onclick="changeScore(-10)">-10</button>
-  <button class="reset"   onclick="resetScore()">🔄 Sıfırla</button>
-</div>
-
-<script>
-  // Service Worker kaydı
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('service-worker.js');
-  }
-
-  // Başlangıçta localStorage'den oku
-  let score = parseInt(localStorage.getItem('score')) || 0;
-  const scoreEl = document.getElementById('score');
-  scoreEl.innerText = score;
-
-  function changeScore(value) {
-    // Titreşim
-    if (navigator.vibrate) navigator.vibrate(50);
-
-    // Skoru güncelle
-    score += value;
+  <script>
+    let score = parseInt(localStorage.getItem('score')) || 0;
+    const scoreEl = document.getElementById('score');
     scoreEl.innerText = score;
-    localStorage.setItem('score', score);
 
-    // Renk flash
-    const cls = value > 0 ? 'flash-green' : 'flash-red';
-    scoreEl.classList.add(cls);
-    scoreEl.addEventListener('animationend', () => {
-      scoreEl.classList.remove(cls);
-    }, { once: true });
-  }
-
-  function resetScore() {
-    score = 0;
-    scoreEl.innerText = score;
-    localStorage.setItem('score', score);
-  }
-</script>
-
+    function changeScore(v) {
+      if (navigator.vibrate) navigator.vibrate(50);
+      score += v;
+      scoreEl.innerText = score;
+      localStorage.setItem('score', score);
+      const cls = v>0?'flash-green':'flash-red';
+      scoreEl.classList.add(cls);
+      scoreEl.addEventListener('animationend', ()=>scoreEl.classList.remove(cls), {once:true});
+    }
+  </script>
 </body>
 </html>
